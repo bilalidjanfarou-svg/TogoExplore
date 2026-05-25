@@ -1,3 +1,4 @@
+
 {% load static %}
 
 <!DOCTYPE html>
@@ -7,11 +8,30 @@
 
     <link rel="stylesheet" href="{% static 'tourism/css/style.css' %}">
 </head>
+
 <body>
 
-    <h1>Bienvenue sur TogoExplore</h1>
+    <h1>Bienvenue sur TogoExplore 🌍</h1>
 
-    <img src="{% static 'tourism/images/togoexplore_logo.png.png' %}" width="300">
+    <img src="{% static 'tourism/images/logo.png' %}" width="200">
+
+    {% for site in sites %}
+
+    <div>
+
+        <h2>{{ site.name }}</h2>
+
+        <img src="{{ site.image.url }}" width="400">
+
+        <p>{{ site.description }}</p>
+
+        <h4>{{ site.location }}</h4>
+
+    </div>
+
+    <hr>
+
+    {% endfor %}
 
     <script src="{% static 'tourism/js/app.js' %}"></script>
 
