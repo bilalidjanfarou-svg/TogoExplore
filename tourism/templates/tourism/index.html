@@ -1,39 +1,163 @@
-
 {% load static %}
 
 <!DOCTYPE html>
-<html>
+<html lang="fr">
+
 <head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>TogoExplore</title>
 
-    <link rel="stylesheet" href="{% static 'tourism/css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
 </head>
 
 <body>
 
-    <h1>Bienvenue sur TogoExplore 🌍</h1>
+    <!-- NAVBAR -->
 
-    <img src="{% static 'tourism/images/logo.png' %}" width="200">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 
-    {% for site in sites %}
+        <div class="container">
 
-    <div>
+            <a class="navbar-brand" href="/">
+                TogoExplore 🌍
+            </a>
 
-        <h2>{{ site.name }}</h2>
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav">
 
-        <img src="{{ site.image.url }}" width="400">
+                <span class="navbar-toggler-icon"></span>
 
-        <p>{{ site.description }}</p>
+            </button>
 
-        <h4>{{ site.location }}</h4>
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <ul class="navbar-nav ms-auto">
+
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">
+                            Accueil
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            Sites
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'contact' %}">
+                            Contact
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+    <!-- CONTENU -->
+
+    <div class="container mt-5">
+
+        <h1 class="text-center mb-5">
+
+            Bienvenue sur TogoExplore 🌍
+
+        </h1>
+
+        <div class="row">
+          <form method="GET" class="mb-5">
+
+    <div class="input-group">
+
+        <input type="text"
+               name="q"
+               class="form-control"
+               placeholder="Rechercher un site touristique...">
+
+        <button class="btn btn-dark">
+
+            Rechercher
+
+        </button>
 
     </div>
 
-    <hr>
+</form>
 
-    {% endfor %}
+            {% for site in sites %}
 
-    <script src="{% static 'tourism/js/app.js' %}"></script>
+            <div class="col-md-4 mb-4">
 
+                <div class="card shadow h-100">
+
+                    <img src="{{ site.image.url }}"
+                         class="card-img-top"
+                         height="250">
+
+                    <div class="card-body">
+
+                        <h3 class="card-title">
+
+                            <a href="{% url 'site_detail' site.id %}"
+                               class="text-decoration-none">
+
+                                {{ site.name }}
+
+                            </a>
+
+                        </h3>
+
+                        <p class="card-text">
+
+                            {{ site.description|truncatewords:20 }}
+
+                        </p>
+
+                        <h6>
+
+                            📍 {{ site.location }}
+
+                        </h6>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<footer class="bg-dark text-white mt-5 p-4">
+
+      <div class="container text-center">
+          <h5>TogoExplore 🌍</h5>
+
+          <p>
+            Découvrez les merveilles touristique du togo.
+          </p>
+
+          <p>
+            © 2026 TogoExplore — Tous droits réservés.
+          </p>
+      </div>
+</footer>
 </body>
+
 </html>
