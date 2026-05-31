@@ -13,5 +13,31 @@
     <p>{{ site.description }}</p>
 
     <a href="/">Retour</a>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet/dist/leaflet.css"
+    />
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <h2>{{ site.name }}</h2>
+
+    <p>{{ site.description }}</p>
+
+    <div id="map" style="height: 400px; width: 100%;"></div>
+
+    <script>
+    var map = L.map('map').setView([{{ site.latitude }}, {{ site.longitude }}], 10);
+
+    // Fond de carte OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Marqueur du site
+    L.marker([{{ site.latitude }}, {{ site.longitude }}])
+        .addTo(map)
+        .bindPopup("<b>{{ site.name }}</b><br>{{ site.location }}")
+        .openPopup();
+</script>
 </body>
 </html>
