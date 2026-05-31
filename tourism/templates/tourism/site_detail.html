@@ -2,8 +2,12 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
+    <head>
     <title>{{ site.name }}</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet/dist/leaflet.css"
+    />
 </head>
 <body>
     <h1>{{ site.name }} </h1>
@@ -13,10 +17,6 @@
     <p>{{ site.description }}</p>
 
     <a href="/">Retour</a>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet/dist/leaflet.css"
-    />
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <h2>{{ site.name }}</h2>
@@ -39,5 +39,27 @@
         .bindPopup("<b>{{ site.name }}</b><br>{{ site.location }}")
         .openPopup();
 </script>
+<h3>Avis des visiteurs</h3>
+
+{% for review in site.reviews.all %}
+
+<div class="card mb-3">
+
+    <div class="card-body">
+
+        <h5>{{ <review.autor }}</h5>
+
+        <p>⭐ {{ review.rating }}</p>
+
+        <p>{{ review.comment }}</p>
+
+    </div>
+</div>
+
+{% empty %}
+
+<P>Aucun avis pour le moment</P>
+
+{% endfor %}
 </body>
 </html>
