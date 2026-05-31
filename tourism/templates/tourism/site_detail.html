@@ -39,6 +39,69 @@
         .bindPopup("<b>{{ site.name }}</b><br>{{ site.location }}")
         .openPopup();
 </script>
+
+<h3>Laisse un avis </h3>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <input
+        type="text"
+        name="author"
+        placeholder="Votre nom"
+        class="form_control mb-2"
+        required
+    >
+
+    <textarea
+    name="comment"
+    placeholder="Votre commentaire"
+    class="form_control mb-2"
+    required
+></textarea>
+
+<select
+    name="rating"
+    class="form_control mb-2"
+>
+    <option value="5">⭐⭐⭐⭐⭐</option>
+    <option value="4">⭐⭐⭐⭐</option>
+    <option value="3">⭐⭐⭐</option>
+    <option value="2">⭐⭐</option>
+    <option value="1">⭐</option>   
+</select>
+
+<button class="btn btn-primary">
+    Envoyer
+</button>
+
+</form>
+
+<h3 class="mt-4">Avis des visiteurs</h3>
+
+{% for review in site.reviews.all %}
+
+<div class="card mb-3">
+
+    <div class="card-body">
+
+        <h5>{{ review.author }}</h5>
+
+        <p>⭐ {{ review.rating }}/5</p>
+
+        <p>{{ review.comment }}</p>
+
+    </div>
+
+</div>
+
+{% empty %}
+
+<p>Aucun avis pour le moment.</p>
+
+{% endfor %}
+
+
 <h3>Avis des visiteurs</h3>
 
 {% for review in site.reviews.all %}

@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import TouristSite, Category
+from .models import TouristSite, Category, Review
 
 
 def home(request):
@@ -28,6 +29,19 @@ def home(request):
 def site_detail(request, id):
 
     site = get_object_or_404(TouristSite, id=id)
+
+    if request.method == 'POST':
+
+        author = request.POST.get('author')
+        comment = request.POST.get('comment')
+        rating = request.POST.get('rating')
+
+        Review.objects.create(
+            site=site,
+            author=author,
+            comment=comment,
+            rating=rating
+        )
 
     context = {
         'site': site
