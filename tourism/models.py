@@ -28,7 +28,7 @@ class TouristSite(models.Model):
         return self.name
 
 class Review(models.Model):
-
+    authors = models.CharField(max_length=100)
     site = models.ForeignKey(
         TouristSite,
         on_delete=models.CASCADE,

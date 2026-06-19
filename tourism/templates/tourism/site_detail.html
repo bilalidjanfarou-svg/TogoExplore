@@ -102,27 +102,8 @@
 {% endfor %}
 
 
-<h3>Avis des visiteurs</h3>
 
-{% for review in site.reviews.all %}
 
-<div class="card mb-3">
 
-    <div class="card-body">
-
-        <h5>{{ <review.autor }}</h5>
-
-        <p>⭐ {{ review.rating }}</p>
-
-        <p>{{ review.comment }}</p>
-
-    </div>
-</div>
-
-{% empty %}
-
-<P>Aucun avis pour le moment</P>
-
-{% endfor %}
 </body>
 </html>
