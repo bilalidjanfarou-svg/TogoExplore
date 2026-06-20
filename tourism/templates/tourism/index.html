@@ -17,6 +17,30 @@
 
 <body>
 
+{% if user.is_authenticated %}
+
+<p>Bonjour {{ user.username }}</p>
+
+<a href="{% url 'logout' %}">
+    Déconnexion
+</a>
+
+{% else %}
+
+<a href="{% url 'login' %}">
+    Connexion
+</a>
+
+<a href="{% url 'register' %}">
+    Inscription
+</a>
+
+{% endif %}
+
+
+
+
+
     <!-- NAVBAR -->
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">

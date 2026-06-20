@@ -40,42 +40,55 @@
         .openPopup();
 </script>
 
-<h3>Laisse un avis </h3>
+if not request.user.is_authenticated:
+    return redirect('login')
+
+{% if user.is_authenticated %}
+
+<h3>Laisser un avis</h3>
 
 <form method="POST">
+
     {% csrf_token %}
 
     <input
         type="text"
         name="author"
         placeholder="Votre nom"
-        class="form_control mb-2"
         required
     >
 
     <textarea
-    name="comment"
-    placeholder="Votre commentaire"
-    class="form_control mb-2"
-    required
-></textarea>
+        name="comment"
+        placeholder="Votre commentaire"
+        required
+    ></textarea>
 
-<select
-    name="rating"
-    class="form_control mb-2"
->
-    <option value="5">⭐⭐⭐⭐⭐</option>
-    <option value="4">⭐⭐⭐⭐</option>
-    <option value="3">⭐⭐⭐</option>
-    <option value="2">⭐⭐</option>
-    <option value="1">⭐</option>   
-</select>
+    <select name="rating">
 
-<button class="btn btn-primary">
-    Envoyer
-</button>
+        <option value="5">⭐⭐⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="1">⭐</option>
+
+    </select>
+
+    <button type="submit">
+        Envoyer
+    </button>
 
 </form>
+
+{% else %}
+
+<p>Veuillez vous connecter pour laisser un avis.</p>
+
+<a> href="{% url 'login' %}">
+    Connexion
+</a>
+
+{% endif %}
 
 <h3 class="mt-4">Avis des visiteurs</h3>
 
