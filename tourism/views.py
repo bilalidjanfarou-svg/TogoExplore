@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from .models import TouristSite, Category
 from .models import TouristSite, Category, Review
-
+from django.contrib.auth.decorators import login_required
 
 def home(request):
 
@@ -32,7 +32,7 @@ def site_detail(request, id):
 
     if request.method == 'POST':
 
-        author = request.POST.get('author')
+        author = request.user.username
         comment = request.POST.get('comment')
         rating = request.POST.get('rating')
 
@@ -53,3 +53,15 @@ def site_detail(request, id):
 def contact(request):
 
     return render(request, 'tourism/contact.html')
+
+@login_required
+def delete_review(request, review_id):
+
+    review = get_object_or_404(Review, id=review_id)
+
+    if review.author == request.user.username:
+        site_id = review.site.id
+        review.delete()
+        return redirect('site_detail', id=site_id)
+    
+    return redirect('home')
