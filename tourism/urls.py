@@ -8,12 +8,8 @@ urlpatterns = [
 
     path('contact/', views.contact, name='contact'),
     path('review/delete/<int:review_id>/', views.delete_review, name='delete_review'),
-   path(
-    'favorite/<int:site_id>/',
-    views.add_favorite,
-    name='add_favorite'
-),
-
+    path('favorite/<int:site_id>/',views.add_favorite,name='add_favorite'),
+    path('favorites/',views.favorites,name='favorites'),
 
 
 

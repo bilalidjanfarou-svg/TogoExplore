@@ -85,6 +85,19 @@ def add_favorite(request, site_id):
 
     return redirect('site_detail', id=site.id)
 
+@login_required
+def favorites(request):
+
+    favorites= Favorite.objects.filter(
+        user=request.user
+    )
+
+    return render(
+        request,
+        'tourism/favorite.html',
+        {'favorite': favorites}
+    )
+
 
 
 
