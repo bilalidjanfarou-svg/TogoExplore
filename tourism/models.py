@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Category(models.Model):
@@ -45,4 +46,34 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.author} - {self.site.name}"
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    site = models.ForeignKey(
+        TouristSite,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        unique_together = ('user', 'site')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -1,7 +1,12 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import TouristSite, Category
 from .models import TouristSite, Category, Review
 from django.contrib.auth.decorators import login_required
+from .models import Favorite
+
+
+
+
 
 def home(request):
 
@@ -65,3 +70,95 @@ def delete_review(request, review_id):
         return redirect('site_detail', id=site_id)
     
     return redirect('home')
+
+
+@login_required
+def add_favorite(request, site_id):
+
+    site = get_object_or_404(TouristSite, id=site_id)
+
+    Favorite.objects.get_or_create(
+        user=request.user,
+        site=site
+    )
+                             
+
+    return redirect('site_detail', id=site.id)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
