@@ -94,8 +94,8 @@ def favorites(request):
 
     return render(
         request,
-        'tourism/favorite.html',
-        {'favorite': favorites}
+        'tourism/favorites.html',
+        {'favorites': favorites}
     )
 
 

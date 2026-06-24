@@ -1,0 +1,25 @@
+<h1>❤️ Mes favoris</h1>
+
+{% for favorite in favorites %}
+
+<div>
+    <h3>{{ favorite.site.name }}</h3>
+
+    <p>{{ favorite.site.location }}</p>
+
+    <a href="{% url 'site_detail' favorite.site.id %}">
+        Voir le site
+    </a>
+
+    <a href="{% url 'remove_favorite' favorite.id %}">
+        ❌ Retirer
+    </a>
+</div>
+
+<hr>
+
+{% empty %}
+
+<p>Aucun favori pour le moment.</p>
+
+{% endfor %}
