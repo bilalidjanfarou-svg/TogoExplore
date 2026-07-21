@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import TouristSite, Category
 from .models import TouristSite, Category, Review
 from django.contrib.auth.decorators import login_required
-from .models import Favorite
+
 
 
 
@@ -88,9 +88,8 @@ def add_favorite(request, site_id):
 @login_required
 def favorites(request):
 
-    favorites= Favorite.objects.filter(
-        user=request.user
-    )
+    
+   
 
     return render(
         request,
