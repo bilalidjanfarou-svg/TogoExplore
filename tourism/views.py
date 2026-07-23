@@ -1,13 +1,15 @@
 from django.shortcuts import render, get_object_or_404
+from django.db.models import Q
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from .models import TouristSite, Region, Category
+from .models import TouristSite, Region, Category, Review
 from .serializers import (
     TouristSiteSerializer,
     RegionSerializer,
-    CategorySerializer
+    CategorySerializer,
+    ReviewSerializer
 )
 
 
@@ -27,11 +29,37 @@ def home(request):
 
 @api_view(['GET'])
 def tourist_sites_api(request):
+
     sites = TouristSite.objects.all()
+
+    search = request.GET.get('search')
+    region = request.GET.get('region')
+    category = request.GET.get('category')
+
+    # Recherche par nom, description ou localisation
+    if search:
+        sites = sites.filter(
+            Q(name__icontains=search) |
+            Q(description__icontains=search) |
+            Q(location__icontains=search)
+        )
+
+    # Filtrer par région
+    if region:
+        sites = sites.filter(
+            region__name__icontains=region
+        )
+
+    # Filtrer par catégorie
+    if category:
+        sites = sites.filter(
+            category__name__icontains=category
+        )
 
     serializer = TouristSiteSerializer(
         sites,
-        many=True
+        many=True,
+        context={'request': request}
     )
 
     return Response(serializer.data)
@@ -39,33 +67,87 @@ def tourist_sites_api(request):
 
 @api_view(['GET'])
 def tourist_site_detail_api(request, id):
+
     site = get_object_or_404(
         TouristSite,
         id=id
     )
 
-    serializer = TouristSiteSerializer(site)
+    serializer = TouristSiteSerializer(
+        site,
+        context={'request': request}
+    )
 
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 def region_api(request):
-    region = Region.objects.all()
+
+    regions = Region.objects.all()
 
     serializer = RegionSerializer(
-        region,
+        regions,
         many=True
     )
 
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 def category_api(request):
-    category = Category.objects.all()
+
+    categories = Category.objects.all()
 
     serializer = CategorySerializer(
-        category,
+        categories,
         many=True
     )
 
     return Response(serializer.data)
+
+
+@api_view(['GET', 'POST'])
+def review_api(request, site_id):
+
+    site = get_object_or_404(
+        TouristSite,
+        id=site_id
+    )
+
+    # Récupérer les avis
+    if request.method == 'GET':
+
+        reviews = Review.objects.filter(
+            site=site
+        ).order_by('-created_at')
+
+        serializer = ReviewSerializer(
+            reviews,
+            many=True
+        )
+
+        return Response(serializer.data)
+
+    # Ajouter un avis
+    if request.method == 'POST':
+
+        data = request.data.copy()
+        data['site'] = site.id
+
+        serializer = ReviewSerializer(
+            data=data
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(
+                serializer.data,
+                status=201
+            )
+
+        return Response(
+            serializer.errors,
+            status=400
+        )

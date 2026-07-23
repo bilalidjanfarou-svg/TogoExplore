@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import TouristSite, Region, Category
+from .models import TouristSite, Region, Category, Review
 
 
 class TouristSiteSerializer(serializers.ModelSerializer):
@@ -21,4 +21,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
+        fields = '__all__'
+
+class ReviewSerializer(serializers.ModelField):
+
+    class Meta:
+        model = Review
         fields = '__all__'
