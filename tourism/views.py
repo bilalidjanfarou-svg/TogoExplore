@@ -1,10 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
-
+from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.contrib.auth.decorators import login_required
 
-from .models import TouristSite, Region, Category, Review
+
+
+from .models import TouristSite, Region, Category, Review, Favorite
 from .serializers import (
     TouristSiteSerializer,
     RegionSerializer,
@@ -23,6 +26,46 @@ def home(request):
     return render(
         request,
         'tourism/index.html',
+        context
+    )
+
+def site_detail(request, id):
+
+    site = get_object_or_404(
+        TouristSite,
+        id=id
+    )
+
+    reviews = Review.objects.filter(
+        site=site
+    ).order_by('-created_at')
+
+    if request.method == 'POST':
+
+        name = request.POST.get('name')
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment')
+
+        Review.objects.create(
+            site=site,
+            name=name,
+            rating=rating,
+            comment=comment
+        )
+
+        return redirect(
+            'site_detail',
+            id=site.id
+        )
+
+    context = {
+        'site': site,
+        'reviews': reviews
+    }
+
+    return render(
+        request,
+        'tourism/site_detail.html',
         context
     )
 
@@ -150,3 +193,25 @@ def review_api(request, site_id):
             serializer.errors,
             status=400
         )
+
+
+
+
+
+@login_required
+def add_favorite(request, site_id):
+
+    site = get_object_or_404(
+        TouristSite,
+        id=site_id
+    )
+
+    Favorite.objects.get_or_create(
+        user=request.user,
+        site=site
+    )
+
+    return redirect(
+        'site_detail',
+        id=site.id
+    )

@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 
 class Region(models.Model):
     name = models.CharField(max_length=100)
@@ -85,3 +85,24 @@ class Contact(models.Model):
 
     def __str__(self):
         return self.subject
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    site = models.ForeignKey(
+        TouristSite,
+        on_delete=models.CASCADE
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        unique_together = ('user', 'site')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.site.name}"

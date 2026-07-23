@@ -56,7 +56,12 @@
 
     {% csrf_token %}
 
-    
+    <input
+        type="text"
+        name="name"
+        placeholder="Votre nom"
+        required
+    >
 
     <textarea
         name="comment"
@@ -64,14 +69,12 @@
         required
     ></textarea>
 
-    <select name="rating">
-
+    <select name="rating" required>
         <option value="5">⭐⭐⭐⭐⭐</option>
         <option value="4">⭐⭐⭐⭐</option>
         <option value="3">⭐⭐⭐</option>
         <option value="2">⭐⭐</option>
         <option value="1">⭐</option>
-
     </select>
 
     <button type="submit">
@@ -90,42 +93,39 @@
 
 {% endif %}
 
-<h3 class="mt-4">Avis des visiteurs</h3>
+<h2>Avis des visiteurs</h2>
 
+{% if reviews %}
 
-       
-{% for review in site.reviews.all %}
+    {% for review in reviews %}
 
-<div class="card mb-3">
+        <div class="review">
 
-    <div class="card-body">
+            <h3>{{ review.name }}</h3>
 
-        <h5>{{ review.author }}</h5>
+            <p>
+                ⭐ {{ review.rating }}/5
+            </p>
 
-        <p>⭐ {{ review.rating }}/5</p>
+            <p>
+                {{ review.comment }}
+            </p>
 
-        <p>{{ review.comment }}</p>
+            <small>
+                {{ review.created_at }}
+            </small>
 
-        <p>Utilisateur connecté : {{ user.username }}</p>
-        <p>Auteur de l'avis : {{ review.author }}</p>
+        </div>
 
-        {% if user.username == review.author %}
+    {% endfor %}
 
-        <a href="{% url 'delete_review' review.id %}">
-            Supprimer
-        </a>
+{% else %}
 
-        {% endif %}
+    <p>
+        Aucun avis pour le moment.
+    </p>
 
-    </div>
-
-</div>
-
-{% empty %}
-
-<p>Aucun avis pour le moment.</p>
-
-{% endfor %}
+{% endif %}
 
 
 

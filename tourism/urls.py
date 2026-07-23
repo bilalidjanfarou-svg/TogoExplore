@@ -44,4 +44,15 @@ urlpatterns = [
         views.review_api,
         name='review-api'
     ),
+    # Page HTML
+path(
+    'sites/<int:id>/',
+    views.site_detail,
+    name='site_detail'
+    ),
+    path(
+    'sites/<int:site_id>/favorite/',
+    views.add_favorite,
+    name='add_favorite'
+),
 ]
