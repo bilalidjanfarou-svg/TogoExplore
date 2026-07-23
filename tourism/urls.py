@@ -55,4 +55,32 @@ path(
     views.add_favorite,
     name='add_favorite'
 ),
+path(
+    'favorites/',
+    views.favorites,
+    name='favorites'
+),
+
+path(
+    'favorites/remove/<int:site_id>/',
+    views.remove_favorite,
+    name='remove_favorite'
+),
+path(
+    'sites/<int:id>/',
+    views.site_detail,
+    name='site_detail'
+),
+
+path(
+    'favorites/',
+    views.favorites,
+    name='favorites'
+),
+
+path(
+    'sites/<int:site_id>/favorite/',
+    views.add_favorite,
+    name='add_favorite'
+),
 ]

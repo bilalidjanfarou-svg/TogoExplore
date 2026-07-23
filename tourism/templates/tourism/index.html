@@ -19,6 +19,14 @@
 
 {% if user.is_authenticated %}
 
+<a href="{% url 'favorites' %}">
+    ❤️ Mes favoris
+</a>
+
+{% endif %}
+
+{% if user.is_authenticated %}
+
 <p>Bonjour {{ user.username }}</p>
 
 <a href="{% url 'logout' %}">

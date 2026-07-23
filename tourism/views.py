@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.response import Response
@@ -214,4 +214,58 @@ def add_favorite(request, site_id):
     return redirect(
         'site_detail',
         id=site.id
+    )
+
+@login_required
+def favorites(request):
+    favorites = Favorite.objects.filter(
+        user=request.user
+    ).select_related('site')
+
+    return render(
+        request,
+        'tourism/favorites.html',
+        {'favorites': favorites}
+    )
+
+@login_required
+def remove_favorite(request, site_id):
+    favorite = get_object_or_404(
+        Favorite,
+        user=request.user,
+        site_id=site_id
+    )
+
+    favorite.delete()
+
+    return redirect('favorites')
+
+
+@login_required
+def add_favorite(request, site_id):
+    site = get_object_or_404(
+        TouristSite,
+        id=site_id
+    )
+
+    Favorite.objects.get_or_create(
+        user=request.user,
+        site=site
+    )
+
+    return redirect('site_detail', id=site.id)
+
+
+@login_required
+def favorites(request):
+    favorites = Favorite.objects.filter(
+        user=request.user
+    ).select_related('site')
+
+    return render(
+        request,
+        'tourism/favorites.html',
+        {
+            'favorites': favorites
+        }
     )

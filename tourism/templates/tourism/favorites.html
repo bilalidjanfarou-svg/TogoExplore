@@ -1,25 +1,49 @@
-<h1>❤️ Mes favoris</h1>
+{% load static %}
 
-{% for favorite in favorites %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mes favoris - TogoExplore</title>
+</head>
 
-<div>
-    <h3>{{ favorite.site.name }}</h3>
+<body>
 
-    <p>{{ favorite.site.location }}</p>
+    <h1>❤️ Mes lieux favoris</h1>
 
-    <a href="{% url 'site_detail' favorite.site.id %}">
-        Voir le site
+    <a href="{% url 'home' %}">
+        ← Retour à l'accueil
     </a>
 
-    <a href="{% url 'remove_favorite' favorite.id %}">
-        ❌ Retirer
-    </a>
-</div>
+    <hr>
 
-<hr>
+    {% for favorite in favorites %}
 
-{% empty %}
+        <div>
+            <h2>{{ favorite.site.name }}</h2>
 
-<p>Aucun favori pour le moment.</p>
+            <p>
+                {{ favorite.site.description }}
+            </p>
 
-{% endfor %}
+            <p>
+                📍 {{ favorite.site.location }}
+            </p>
+
+            <a href="{% url 'site_detail' favorite.site.id %}">
+                Voir le site
+            </a>
+        </div>
+
+        <hr>
+
+    {% empty %}
+
+        <p>
+            Vous n'avez encore aucun site favori.
+        </p>
+
+    {% endfor %}
+
+</body>
+</html>
