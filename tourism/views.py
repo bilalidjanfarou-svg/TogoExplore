@@ -141,7 +141,6 @@ def review_api(request, site_id):
 
         if serializer.is_valid():
             serializer.save()
-
             return Response(
                 serializer.data,
                 status=201
