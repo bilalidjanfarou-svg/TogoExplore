@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 from . import views
 
 
@@ -8,6 +8,18 @@ urlpatterns = [
         '',
         views.home,
         name='home'
+    ),
+
+    path(
+    'contact/',
+    views.contact,
+    name='contact'
+    ),
+
+    path(
+    'register/',
+    views.register,
+    name='register'
     ),
 
     # Liste des sites
@@ -45,7 +57,7 @@ urlpatterns = [
         name='review-api'
     ),
     # Page HTML
-path(
+    path(
     'sites/<int:id>/',
     views.site_detail,
     name='site_detail'
@@ -83,4 +95,6 @@ path(
     views.add_favorite,
     name='add_favorite'
 ),
+
+
 ]

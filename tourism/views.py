@@ -4,7 +4,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import login_required
-
+from .models import Contact
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+from django.contrib import messages
 
 
 from .models import TouristSite, Region, Category, Review, Favorite
@@ -67,6 +70,22 @@ def site_detail(request, id):
         request,
         'tourism/site_detail.html',
         context
+    )
+
+def contact(request):
+    if request.method == 'POST':
+        Contact.objects.create(
+            name=request.POST.get('name'),
+            email=request.POST.get('email'),
+            subject=request.POST.get('subject'),
+            message=request.POST.get('message')
+        )
+
+        return redirect('contact')
+
+    return render(
+        request,
+        'tourism/contact.html'
     )
 
 
@@ -268,4 +287,46 @@ def favorites(request):
         {
             'favorites': favorites
         }
+    )
+
+def register(request):
+
+    if request.method == 'POST':
+
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        password2 = request.POST.get('password2')
+
+        # Vérifier les mots de passe
+        if password != password2:
+            messages.error(
+                request,
+                "Les mots de passe ne correspondent pas."
+            )
+            return redirect('register')
+
+        # Vérifier si le nom existe déjà
+        if User.objects.filter(username=username).exists():
+            messages.error(
+                request,
+                "Ce nom d'utilisateur existe déjà."
+            )
+            return redirect('register')
+
+        # Créer l'utilisateur
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        # Connecter automatiquement l'utilisateur
+        login(request, user)
+
+        return redirect('home')
+
+    return render(
+        request,
+        'registration/register.html'
     )

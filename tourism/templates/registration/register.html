@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        Inscription - TogoExplore
+    </title>
+</head>
+
+<body>
+
+    <h1>
+        Créer un compte TogoExplore
+    </h1>
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <p>
+                {{ message }}
+            </p>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <div>
+
+            <label>
+                Nom d'utilisateur
+            </label>
+
+            <input
+                type="text"
+                name="username"
+                required
+            >
+
+        </div>
+
+
+        <div>
+
+            <label>
+                Adresse email
+            </label>
+
+            <input
+                type="email"
+                name="email"
+                required
+            >
+
+        </div>
+
+
+        <div>
+
+            <label>
+                Mot de passe
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                required
+            >
+
+        </div>
+
+
+        <div>
+
+            <label>
+                Confirmer le mot de passe
+            </label>
+
+            <input
+                type="password"
+                name="password2"
+                required
+            >
+
+        </div>
+
+
+        <button type="submit">
+            Créer mon compte
+        </button>
+
+    </form>
+
+
+    <p>
+        Vous avez déjà un compte ?
+    </p>
+
+    <a href="{% url 'login' %}">
+        Se connecter
+    </a>
+
+
+    <br><br>
+
+    <a href="{% url 'home' %}">
+        Retour à l'accueil
+    </a>
+
+</body>
+
+</html>
