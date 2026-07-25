@@ -28,9 +28,9 @@ from .serializers import (
 # ==========================================================
 
 def home(request):
-
     sites = TouristSite.objects.all()
     categories = Category.objects.all()
+    regions = Region.objects.all()
 
     # Recherche
     q = request.GET.get('q')
@@ -61,6 +61,7 @@ def home(request):
     context = {
         'sites': sites,
         'categories': categories,
+        'regions': regions,
     }
 
     return render(
