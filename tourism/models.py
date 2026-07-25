@@ -31,7 +31,7 @@ class TouristSite(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
-        related_name="Sites",
+        related_name="sites",
         null=True,
         blank=True
     )
@@ -102,7 +102,12 @@ class Favorite(models.Model):
     )
 
     class Meta:
-        unique_together = ('user', 'site')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'site'],
+                name='unique_user_site_favorite'
+            )
+        ]
 
     def __str__(self):
         return f"{self.user.username} - {self.site.name}"

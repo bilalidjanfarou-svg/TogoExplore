@@ -266,6 +266,34 @@
 
     {% endfor %}
 
+    {% if user.is_authenticated %}
+
+    {% if site in user.favorite_sites.all %}
+
+        <a href="{% url 'remove_favorite' site.id %}">
+            💔 Retirer des favoris
+        </a>
+
+    {% else %}
+
+        <a href="{% url 'add_favorite' site.id %}">
+            ❤️ Ajouter aux favoris
+        </a>
+
+    {% endif %}
+
+{% else %}
+
+    <p>
+        Connectez-vous pour ajouter ce site à vos favoris.
+    </p>
+
+    <a href="{% url 'login' %}">
+        Se connecter
+    </a>
+
+{% endif %}
+
 
 </body>
 

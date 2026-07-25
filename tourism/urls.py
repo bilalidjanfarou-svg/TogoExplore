@@ -1,118 +1,79 @@
-from django.urls import include, path
+from django.urls import path
 from . import views
 
-
 urlpatterns = [
-    # Accueil
+    path('', views.home, name='home'),
+
+    # Sites
     path(
-        '',
-        views.home,
-        name='home'
+        'sites/<int:site_id>/',
+        views.site_detail,
+        name='site_detail'
     ),
 
+    # Contact
     path(
-    'contact/',
-    views.contact,
-    name='contact'
+        'contact/',
+        views.contact,
+        name='contact'
     ),
 
-    path(
-    'register/',
-    views.register,
-    name='register'
-    ),
-
-    # Liste des sites
+    # API Sites
     path(
         'api/sites/',
         views.tourist_sites_api,
         name='tourist-sites-api'
     ),
 
-    # Détail d'un site
     path(
         'api/sites/<int:id>/',
         views.tourist_site_detail_api,
         name='tourist-site-detail-api'
     ),
 
-    # Liste des régions
+    # API Régions et catégories
     path(
         'api/regions/',
         views.region_api,
         name='regions-api'
     ),
 
-    # Liste des catégories
     path(
         'api/categories/',
         views.category_api,
         name='categories-api'
     ),
 
-    # Avis d'un site
+    # API Avis
     path(
         'api/sites/<int:site_id>/reviews/',
         views.review_api,
         name='review-api'
     ),
-    # Page HTML
+
+    # Favoris
     path(
-    'sites/<int:id>/',
-    views.site_detail,
-    name='site_detail'
-    ),
-    path(
-    'sites/<int:site_id>/favorite/',
-    views.add_favorite,
-    name='add_favorite'
-    ),
-    path(
-    'favorites/',
-    views.favorites,
-    name='favorites'
+        'sites/<int:site_id>/favorite/',
+        views.add_favorite,
+        name='add_favorite'
     ),
 
     path(
-    'favorites/remove/<int:site_id>/',
-    views.remove_favorite,
-    name='remove_favorite'
+        'sites/<int:site_id>/remove-favorite/',
+        views.remove_favorite,
+        name='remove_favorite'
     ),
+
     path(
-    'sites/<int:id>/',
-    views.site_detail,
-    name='site_detail'
+        'favorites/',
+        views.favorites,
+        name='favorites'
     ),
 
-path(
-    'favorites/',
-    views.favorites,
-    name='favorites'
-),
-
-path(
-    'sites/<int:site_id>/favorite/',
-    views.add_favorite,
-    name='add_favorite'
-),
-
-path(
-    'sites/<int:site_id>/favorite/',
-    views.add_favorite,
-    name='add_favorite'
-),
-
-path(
-    'sites/<int:site_id>/remove-favorite/',
-    views.remove_favorite,
-    name='remove_favorite'
-),
-
-path(
-    'favorites/',
-    views.favorites,
-    name='favorites'
-),
-
-
+    # Authentification
+    path(
+        'register/',
+        views.register,
+        name='register'
+    ),
 ]

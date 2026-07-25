@@ -1,16 +1,20 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
-from django.shortcuts import render, get_object_or_404, redirect
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import login_required
-from .models import Contact
 from django.contrib.auth.models import User
 from django.contrib.auth import login
-from django.contrib import messages
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
+from .models import (
+    TouristSite,
+    Region,
+    Category,
+    Review,
+    Favorite,
+    Contact
+)
 
-from .models import TouristSite, Region, Category, Review, Favorite
 from .serializers import (
     TouristSiteSerializer,
     RegionSerializer,
@@ -19,11 +23,44 @@ from .serializers import (
 )
 
 
+# ==========================================================
+# ACCUEIL
+# ==========================================================
+
 def home(request):
+
     sites = TouristSite.objects.all()
+    categories = Category.objects.all()
+
+    # Recherche
+    q = request.GET.get('q')
+
+    if q:
+        sites = sites.filter(
+            Q(name__icontains=q) |
+            Q(description__icontains=q) |
+            Q(location__icontains=q)
+        )
+
+    # Filtre par catégorie
+    category_id = request.GET.get('category')
+
+    if category_id:
+        sites = sites.filter(
+            category_id=category_id
+        )
+
+    # Filtre par région
+    region_id = request.GET.get('region')
+
+    if region_id:
+        sites = sites.filter(
+            region_id=region_id
+        )
 
     context = {
-        'sites': sites
+        'sites': sites,
+        'categories': categories,
     }
 
     return render(
@@ -32,17 +69,23 @@ def home(request):
         context
     )
 
-def site_detail(request, id):
+
+# ==========================================================
+# DÉTAIL D'UN SITE TOURISTIQUE
+# ==========================================================
+
+def site_detail(request, site_id):
 
     site = get_object_or_404(
         TouristSite,
-        id=id
+        id=site_id
     )
 
     reviews = Review.objects.filter(
         site=site
     ).order_by('-created_at')
 
+    # Ajouter un avis depuis le site web
     if request.method == 'POST':
 
         name = request.POST.get('name')
@@ -58,7 +101,7 @@ def site_detail(request, id):
 
         return redirect(
             'site_detail',
-            id=site.id
+            site_id=site.id
         )
 
     context = {
@@ -72,8 +115,15 @@ def site_detail(request, id):
         context
     )
 
+
+# ==========================================================
+# CONTACT
+# ==========================================================
+
 def contact(request):
+
     if request.method == 'POST':
+
         Contact.objects.create(
             name=request.POST.get('name'),
             email=request.POST.get('email'),
@@ -89,6 +139,10 @@ def contact(request):
     )
 
 
+# ==========================================================
+# API - LISTE DES SITES
+# ==========================================================
+
 @api_view(['GET'])
 def tourist_sites_api(request):
 
@@ -98,7 +152,7 @@ def tourist_sites_api(request):
     region = request.GET.get('region')
     category = request.GET.get('category')
 
-    # Recherche par nom, description ou localisation
+    # Recherche
     if search:
         sites = sites.filter(
             Q(name__icontains=search) |
@@ -106,13 +160,13 @@ def tourist_sites_api(request):
             Q(location__icontains=search)
         )
 
-    # Filtrer par région
+    # Région
     if region:
         sites = sites.filter(
             region__name__icontains=region
         )
 
-    # Filtrer par catégorie
+    # Catégorie
     if category:
         sites = sites.filter(
             category__name__icontains=category
@@ -124,8 +178,14 @@ def tourist_sites_api(request):
         context={'request': request}
     )
 
-    return Response(serializer.data)
+    return Response(
+        serializer.data
+    )
 
+
+# ==========================================================
+# API - DÉTAIL D'UN SITE
+# ==========================================================
 
 @api_view(['GET'])
 def tourist_site_detail_api(request, id):
@@ -140,8 +200,14 @@ def tourist_site_detail_api(request, id):
         context={'request': request}
     )
 
-    return Response(serializer.data)
+    return Response(
+        serializer.data
+    )
 
+
+# ==========================================================
+# API - RÉGIONS
+# ==========================================================
 
 @api_view(['GET'])
 def region_api(request):
@@ -153,8 +219,14 @@ def region_api(request):
         many=True
     )
 
-    return Response(serializer.data)
+    return Response(
+        serializer.data
+    )
 
+
+# ==========================================================
+# API - CATÉGORIES
+# ==========================================================
 
 @api_view(['GET'])
 def category_api(request):
@@ -166,8 +238,14 @@ def category_api(request):
         many=True
     )
 
-    return Response(serializer.data)
+    return Response(
+        serializer.data
+    )
 
+
+# ==========================================================
+# API - AVIS
+# ==========================================================
 
 @api_view(['GET', 'POST'])
 def review_api(request, site_id):
@@ -189,12 +267,15 @@ def review_api(request, site_id):
             many=True
         )
 
-        return Response(serializer.data)
+        return Response(
+            serializer.data
+        )
 
     # Ajouter un avis
     if request.method == 'POST':
 
         data = request.data.copy()
+
         data['site'] = site.id
 
         serializer = ReviewSerializer(
@@ -202,7 +283,9 @@ def review_api(request, site_id):
         )
 
         if serializer.is_valid():
+
             serializer.save()
+
             return Response(
                 serializer.data,
                 status=201
@@ -214,8 +297,9 @@ def review_api(request, site_id):
         )
 
 
-
-
+# ==========================================================
+# FAVORIS - AJOUTER
+# ==========================================================
 
 @login_required
 def add_favorite(request, site_id):
@@ -232,62 +316,58 @@ def add_favorite(request, site_id):
 
     return redirect(
         'site_detail',
-        id=site.id
+        site_id=site.id
     )
 
-@login_required
-def favorites(request):
-    favorites = Favorite.objects.filter(
-        user=request.user
-    ).select_related('site')
 
-    return render(
-        request,
-        'tourism/favorites.html',
-        {'favorites': favorites}
-    )
+# ==========================================================
+# FAVORIS - SUPPRIMER
+# ==========================================================
 
 @login_required
 def remove_favorite(request, site_id):
-    favorite = get_object_or_404(
-        Favorite,
-        user=request.user,
-        site_id=site_id
-    )
 
-    favorite.delete()
-
-    return redirect('favorites')
-
-
-@login_required
-def add_favorite(request, site_id):
     site = get_object_or_404(
         TouristSite,
         id=site_id
     )
 
-    Favorite.objects.get_or_create(
+    Favorite.objects.filter(
         user=request.user,
         site=site
+    ).delete()
+
+    return redirect(
+        'site_detail',
+        site_id=site.id
     )
 
-    return redirect('site_detail', id=site.id)
 
+# ==========================================================
+# FAVORIS - LISTE
+# ==========================================================
 
 @login_required
 def favorites(request):
-    favorites = Favorite.objects.filter(
+
+    favorite_sites = Favorite.objects.filter(
         user=request.user
-    ).select_related('site')
+    ).select_related(
+        'site'
+    )
 
     return render(
         request,
         'tourism/favorites.html',
         {
-            'favorites': favorites
+            'favorite_sites': favorite_sites
         }
     )
+
+
+# ==========================================================
+# INSCRIPTION
+# ==========================================================
 
 def register(request):
 
@@ -300,19 +380,29 @@ def register(request):
 
         # Vérifier les mots de passe
         if password != password2:
-            messages.error(
-                request,
-                "Les mots de passe ne correspondent pas."
-            )
-            return redirect('register')
 
-        # Vérifier si le nom existe déjà
-        if User.objects.filter(username=username).exists():
-            messages.error(
+            return render(
                 request,
-                "Ce nom d'utilisateur existe déjà."
+                'registration/register.html',
+                {
+                    'error':
+                    'Les mots de passe ne correspondent pas.'
+                }
             )
-            return redirect('register')
+
+        # Vérifier si l'utilisateur existe
+        if User.objects.filter(
+            username=username
+        ).exists():
+
+            return render(
+                request,
+                'registration/register.html',
+                {
+                    'error':
+                    'Ce nom d\'utilisateur existe déjà.'
+                }
+            )
 
         # Créer l'utilisateur
         user = User.objects.create_user(
@@ -321,56 +411,17 @@ def register(request):
             password=password
         )
 
-        # Connecter automatiquement l'utilisateur
-        login(request, user)
+        # Connecter automatiquement
+        login(
+            request,
+            user
+        )
 
-        return redirect('home')
+        return redirect(
+            'home'
+        )
 
     return render(
         request,
         'registration/register.html'
-    )
-
-@login_required
-def add_favorite(request, site_id):
-    site = get_object_or_404(
-        TouristSite,
-        id=site_id
-    )
-
-    Favorite.objects.get_or_create(
-        user=request.user,
-        site=site
-    )
-
-    return redirect('site_detail', site_id=site.id)
-
-
-@login_required
-def remove_favorite(request, site_id):
-    site = get_object_or_404(
-        TouristSite,
-        id=site_id
-    )
-
-    Favorite.objects.filter(
-        user=request.user,
-        site=site
-    ).delete()
-
-    return redirect('site_detail', site_id=site.id)
-
-
-@login_required
-def favorites(request):
-    favorite_sites = Favorite.objects.filter(
-        user=request.user
-    ).select_related('site')
-
-    return render(
-        request,
-        'tourism/favorites.html',
-        {
-            'favorite_sites': favorite_sites
-        }
     )
