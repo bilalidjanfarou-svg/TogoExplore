@@ -330,3 +330,47 @@ def register(request):
         request,
         'registration/register.html'
     )
+
+@login_required
+def add_favorite(request, site_id):
+    site = get_object_or_404(
+        TouristSite,
+        id=site_id
+    )
+
+    Favorite.objects.get_or_create(
+        user=request.user,
+        site=site
+    )
+
+    return redirect('site_detail', site_id=site.id)
+
+
+@login_required
+def remove_favorite(request, site_id):
+    site = get_object_or_404(
+        TouristSite,
+        id=site_id
+    )
+
+    Favorite.objects.filter(
+        user=request.user,
+        site=site
+    ).delete()
+
+    return redirect('site_detail', site_id=site.id)
+
+
+@login_required
+def favorites(request):
+    favorite_sites = Favorite.objects.filter(
+        user=request.user
+    ).select_related('site')
+
+    return render(
+        request,
+        'tourism/favorites.html',
+        {
+            'favorite_sites': favorite_sites
+        }
+    )

@@ -1,5 +1,3 @@
-{% load static %}
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -9,41 +7,35 @@
 
 <body>
 
-    <h1>❤️ Mes lieux favoris</h1>
+<h1>❤️ Mes sites favoris</h1>
 
-    <a href="{% url 'home' %}">
-        ← Retour à l'accueil
-    </a>
+{% for favorite in favorite_sites %}
 
-    <hr>
-
-    {% for favorite in favorites %}
-
-        <div>
-            <h2>{{ favorite.site.name }}</h2>
-
-            <p>
-                {{ favorite.site.description }}
-            </p>
-
-            <p>
-                📍 {{ favorite.site.location }}
-            </p>
-
-            <a href="{% url 'site_detail' favorite.site.id %}">
-                Voir le site
-            </a>
-        </div>
-
-        <hr>
-
-    {% empty %}
+    <div>
+        <h2>{{ favorite.site.name }}</h2>
 
         <p>
-            Vous n'avez encore aucun site favori.
+            {{ favorite.site.description }}
         </p>
 
-    {% endfor %}
+        <a href="{% url 'site_detail' favorite.site.id %}">
+            Voir le site
+        </a>
+
+        <a href="{% url 'remove_favorite' favorite.site.id %}">
+            💔 Retirer
+        </a>
+    </div>
+
+{% empty %}
+
+    <p>Vous n'avez encore aucun site favori.</p>
+
+{% endfor %}
+
+<a href="/">
+    Retour à l'accueil
+</a>
 
 </body>
 </html>

@@ -1,107 +1,246 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
-    <head>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
     <title>{{ site.name }}</title>
+
     <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet/dist/leaflet.css"
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet/dist/leaflet.css"
     />
+
 </head>
+
 <body>
-    <h1>{{ site.name }} </h1>
+
+    <!-- Nom du site -->
+    <h1>{{ site.name }}</h1>
+
+
+    <!-- Favoris -->
     {% if user.is_authenticated %}
 
-    <a href="{% url 'add_favorite' site.id %}">
-         ❤️ Ajouter aux favoris
-    </a>
+        <a href="{% url 'add_favorite' site.id %}">
+            ❤️ Ajouter aux favoris
+        </a>
+
     {% endif %}
 
-    <img src="{{ site.image.url }}" width="600">
 
-    <p>{{ site.description }}</p>
+    <!-- Image -->
+    {% if site.image %}
 
-    <a href="/">Retour</a>
+        <img
+            src="{{ site.image.url }}"
+            width="600"
+            alt="{{ site.name }}"
+        >
 
+    {% endif %}
+
+
+    <!-- Description -->
+    <h2>Description</h2>
+
+    <p>
+        {{ site.description }}
+    </p>
+
+
+    <!-- Localisation -->
+    <p>
+        📍 {{ site.location }}
+    </p>
+
+
+    <!-- Carte -->
+    <h2>Localisation sur la carte</h2>
+
+    <div
+        id="map"
+        style="height: 400px; width: 100%;"
+    ></div>
+
+
+    <!-- Retour -->
+    <br>
+
+    <a href="{% url 'home' %}">
+        ← Retour à l'accueil
+    </a>
+
+
+    <!-- Leaflet -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <h2>{{ site.name }}</h2>
 
-    <p>{{ site.description }}</p>
-
-    <div id="map" style="height: 400px; width: 100%;"></div>
 
     <script>
-    var map = L.map('map').setView([{{ site.latitude }}, {{ site.longitude }}], 10);
 
-    // Fond de carte OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+        var map = L.map('map').setView(
+            [
+                {{ site.latitude }},
+                {{ site.longitude }}
+            ],
+            10
+        );
 
-    // Marqueur du site
-    L.marker([{{ site.latitude }}, {{ site.longitude }}])
+
+        // Fond de carte OpenStreetMap
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                attribution: '&copy; OpenStreetMap contributors'
+            }
+        ).addTo(map);
+
+
+        // Marqueur du site
+        L.marker([
+            {{ site.latitude }},
+            {{ site.longitude }}
+        ])
         .addTo(map)
-        .bindPopup("<b>{{ site.name }}</b><br>{{ site.location }}")
+        .bindPopup(
+            "<b>{{ site.name }}</b><br>{{ site.location }}"
+        )
         .openPopup();
-</script>
+
+    </script>
 
 
+    <!-- ======================== -->
+    <!-- FORMULAIRE D'AVIS -->
+    <!-- ======================== -->
 
-{% if user.is_authenticated %}
+    {% if user.is_authenticated %}
 
-<h3>Laisser un avis</h3>
+        <h3>Laisser un avis</h3>
 
-<form method="POST">
+        <form method="POST">
 
-    {% csrf_token %}
+            {% csrf_token %}
 
-    <input
-        type="text"
-        name="name"
-        placeholder="Votre nom"
-        required
-    >
+            <div>
 
-    <textarea
-        name="comment"
-        placeholder="Votre commentaire"
-        required
-    ></textarea>
+                <label>
+                    Votre nom
+                </label>
 
-    <select name="rating" required>
-        <option value="5">⭐⭐⭐⭐⭐</option>
-        <option value="4">⭐⭐⭐⭐</option>
-        <option value="3">⭐⭐⭐</option>
-        <option value="2">⭐⭐</option>
-        <option value="1">⭐</option>
-    </select>
+                <br>
 
-    <button type="submit">
-        Envoyer
-    </button>
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Votre nom"
+                    required
+                >
 
-</form>
+            </div>
 
-{% else %}
 
-<p>Veuillez vous connecter pour laisser un avis.</p>
+            <br>
 
-<a href="{% url 'login' %}">
-    Connexion
-</a>
 
-{% endif %}
+            <div>
 
-<h2>Avis des visiteurs</h2>
+                <label>
+                    Votre commentaire
+                </label>
 
-{% if reviews %}
+                <br>
 
-    {% for review in reviews %}
+                <textarea
+                    name="comment"
+                    placeholder="Votre commentaire"
+                    required
+                ></textarea>
 
-        <div class="review">
+            </div>
 
-            <h3>{{ review.name }}</h3>
+
+            <br>
+
+
+            <div>
+
+                <label>
+                    Votre note
+                </label>
+
+                <br>
+
+                <select
+                    name="rating"
+                    required
+                >
+
+                    <option value="5">
+                        ⭐⭐⭐⭐⭐
+                    </option>
+
+                    <option value="4">
+                        ⭐⭐⭐⭐
+                    </option>
+
+                    <option value="3">
+                        ⭐⭐⭐
+                    </option>
+
+                    <option value="2">
+                        ⭐⭐
+                    </option>
+
+                    <option value="1">
+                        ⭐
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <br>
+
+
+            <button type="submit">
+                Envoyer mon avis
+            </button>
+
+        </form>
+
+
+    {% else %}
+
+        <p>
+            Vous devez être connecté pour laisser un avis.
+        </p>
+
+        <a href="{% url 'login' %}">
+            Se connecter
+        </a>
+
+    {% endif %}
+
+
+    <!-- ======================== -->
+    <!-- LISTE DES AVIS -->
+    <!-- ======================== -->
+
+    <h3>Avis des visiteurs</h3>
+
+
+    {% for review in site.reviews.all %}
+
+        <div class="card">
+
+            <h4>
+                {{ review.name }}
+            </h4>
 
             <p>
                 ⭐ {{ review.rating }}/5
@@ -112,23 +251,22 @@
             </p>
 
             <small>
-                {{ review.created_at }}
+                Publié le {{ review.created_at }}
             </small>
 
         </div>
 
+        <hr>
+
+    {% empty %}
+
+        <p>
+            Aucun avis pour le moment.
+        </p>
+
     {% endfor %}
-
-{% else %}
-
-    <p>
-        Aucun avis pour le moment.
-    </p>
-
-{% endif %}
-
-
 
 
 </body>
+
 </html>
