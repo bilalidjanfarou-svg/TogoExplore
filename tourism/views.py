@@ -1,3 +1,4 @@
+from django.http import request
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
@@ -5,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.core.paginator import Paginator
 
 from .models import (
     TouristSite,
@@ -33,7 +35,7 @@ def home(request):
     regions = Region.objects.all()
 
     # Recherche
-    q = request.GET.get('q')
+    q = request.GET.get("q")
 
     if q:
         sites = sites.filter(
@@ -42,31 +44,46 @@ def home(request):
             Q(location__icontains=q)
         )
 
-    # Filtre par catégorie
-    category_id = request.GET.get('category')
+    # Filtre catégorie
+    category_id = request.GET.get("category")
 
     if category_id:
-        sites = sites.filter(
-            category_id=category_id
-        )
+        sites = sites.filter(category_id=category_id)
 
-    # Filtre par région
-    region_id = request.GET.get('region')
+    # Filtre région
+    region_id = request.GET.get("region")
 
     if region_id:
-        sites = sites.filter(
-            region_id=region_id
-        )
+        sites = sites.filter(region_id=region_id)
+
+    # Tri
+    sort = request.GET.get("sort")
+
+    if sort == "recent":
+        sites = sites.order_by("-created_at")
+
+    elif sort == "name":
+        sites = sites.order_by("name")
+
+    else:
+        sites = sites.order_by("id")
+
+    # Pagination
+    paginator = Paginator(sites, 6)
+
+    page = request.GET.get("page")
+
+    sites = paginator.get_page(page)
 
     context = {
-        'sites': sites,
-        'categories': categories,
-        'regions': regions,
+        "sites": sites,
+        "categories": categories,
+        "regions": regions,
     }
 
     return render(
         request,
-        'tourism/index.html',
+        "tourism/index.html",
         context
     )
 

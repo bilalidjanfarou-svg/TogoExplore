@@ -210,7 +210,35 @@
                name="q"
                class="form-control"
                placeholder="Rechercher un site touristique...">
+        
 
+               <form method="GET">
+
+        <select
+            name="sort"
+            class="form-select mb-3">
+
+        <option value="">
+            Trier par
+        </option>
+
+        <option value="name">
+            Nom A-Z
+        </option>
+
+        <option value="recent">
+            Plus récent
+        </option>
+
+        </select>
+
+        <button class="btn btn-primary">
+
+            Appliquer
+
+        </button>
+
+        </form>
         <button class="btn btn-dark">
 
             Rechercher
@@ -267,6 +295,36 @@
             </div>
 
             {% endfor %}
+
+            <div class="d-flex justify-content-center mt-5">
+
+    {% if sites.has_previous %}
+
+        <a class="btn btn-dark me-2"
+           href="?page={{ sites.previous_page_number }}">
+            ← Précédent
+        </a>
+
+    {% endif %}
+
+    <span class="btn btn-light">
+
+        Page {{ sites.number }}
+        sur
+        {{ sites.paginator.num_pages }}
+
+    </span>
+
+    {% if sites.has_next %}
+
+        <a class="btn btn-dark ms-2"
+           href="?page={{ sites.next_page_number }}">
+            Suivant →
+        </a>
+
+    {% endif %}
+
+</div>
 
         </div>
 
