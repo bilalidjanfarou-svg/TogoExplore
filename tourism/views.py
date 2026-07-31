@@ -7,7 +7,8 @@ from django.contrib.auth import login
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.core.paginator import Paginator
-
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 from .models import (
     TouristSite,
     Region,
@@ -265,7 +266,10 @@ def category_api(request):
 # API - AVIS
 # ==========================================================
 
+
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+
 def review_api(request, site_id):
 
     site = get_object_or_404(
