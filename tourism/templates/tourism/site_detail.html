@@ -21,6 +21,14 @@
     <!-- Nom du site -->
     <h1>{{ site.name }}</h1>
 
+   <p>
+    ⭐ <strong>{{ site.average_rating }}/5</strong>
+    ({{ site.reviews_count }} avis)
+    </p>
+
+    <img src="{{ site.image.url }}" width="600">
+
+
 
     <!-- Favoris -->
     {% if user.is_authenticated %}

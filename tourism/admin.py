@@ -1,11 +1,12 @@
 from django.contrib import admin
 from .models import (
-     Region,
-    Category,
     TouristSite,
+    Region,
+    Category,
     Gallery,
     Review,
     Contact,
+    Favorite
 )
 
 

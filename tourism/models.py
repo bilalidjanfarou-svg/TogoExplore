@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Avg
 
 class Region(models.Model):
     name = models.CharField(max_length=100)
@@ -13,8 +14,6 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
-
-
 class TouristSite(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
@@ -40,24 +39,25 @@ class TouristSite(models.Model):
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
 
     image = models.ImageField(upload_to="sites/")
-
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def average_rating(self):
+        avg = self.reviews.aggregate(
+            Avg("rating")
+        )["rating__avg"]
+
+        return round(avg, 1) if avg else 0
+
+    @property
+    def reviews_count(self):
+        return self.reviews.count()
 
     def __str__(self):
         return self.name
 
 
-class Gallery(models.Model):
-    site = models.ForeignKey(
-        TouristSite,
-        on_delete=models.CASCADE,
-        related_name="gallery"
-    )
 
-    image = models.ImageField(upload_to="gallery/")
-
-    def __str__(self):
-        return f"Image de {self.site.name}"
 
 
 class Review(models.Model):
@@ -111,3 +111,27 @@ class Favorite(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.site.name}"
+    
+
+class Gallery(models.Model):
+    site = models.ForeignKey(
+        TouristSite,
+        on_delete=models.CASCADE,
+        related_name="gallery"
+    )
+
+    image = models.ImageField(upload_to="gallery/")
+
+    def __str__(self):
+        return f"Image de {self.site.name}"
+
+
+
+
+
+
+
+
+
+
+
