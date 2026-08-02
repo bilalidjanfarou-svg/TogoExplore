@@ -76,4 +76,16 @@ urlpatterns = [
         views.register,
         name='register'
     ),
+
+    path(
+        'api/dashboard/',
+        views.dashboard_api,
+        name='dashboard-api'
+    ),
+
+    path(
+        'api/sites/top-rated/',
+        views.top_rated_sites_api,
+        name='top-rated-sites-api'
+    )
 ]

@@ -9,6 +9,8 @@ from rest_framework.decorators import api_view
 from django.core.paginator import Paginator
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
+from django.contrib.auth.models import User
+from django.db.models import Avg
 from .models import (
     TouristSite,
     Region,
@@ -447,3 +449,31 @@ def register(request):
         request,
         'registration/register.html'
     )
+
+@api_view(['GET'])
+def dashboard_api(request):
+
+    data = {
+        "total_sites": TouristSite.objects.count(),
+        "total_regions": Region.objects.count(),
+        "total_categories": Category.objects.count(),
+        "total_reviews": Review.objects.count(),
+        "total_users": User.objects.count(),
+        "total_favorites": Favorite.objects.count(),
+    }
+
+    return Response(data)
+@api_view(["GET"])
+def top_rated_sites_api(request):
+
+    sites = TouristSite.objects.annotate(
+    avg_rating=Avg("reviews__rating")
+).order_by("-avg_rating")[:5]
+
+    serializer = TouristSiteSerializer(
+        sites,
+        many=True,
+        context={"request": request}
+    )
+
+    return Response(serializer.data)

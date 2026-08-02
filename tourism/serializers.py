@@ -13,12 +13,25 @@ class TouristSiteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TouristSite
-        fields = "__all__"
+        fields = [
+            "id",
+            "name",
+            "description",
+            "location",
+            "latitude",
+            "longitude",
+            "image",
+            "region",
+            "category",
+            "average_rating",
+            "reviews_count",
+        ]
 
     def get_average_rating(self, obj):
         avg = obj.reviews.aggregate(
             Avg("rating")
         )["rating__avg"]
+
         return round(avg, 1) if avg else 0
 
     def get_reviews_count(self, obj):
