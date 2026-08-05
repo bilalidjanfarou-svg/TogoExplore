@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.db.models import Avg
-from .models import TouristSite, Region, Category, Review
+from .models import TouristSite, Region, Category, Review, Favorite
 
 
 class TouristSiteSerializer(serializers.ModelSerializer):
@@ -57,3 +57,15 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = "__all__"
+
+class FavoriteSerializer(serializers.ModelSerializer):
+
+    site = TouristSiteSerializer(read_only=True)
+
+    class Meta:
+        model = Favorite
+        fields = [
+            "id",
+            "site",
+            "created_at",
+        ]

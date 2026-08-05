@@ -11,6 +11,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 from django.contrib.auth.models import User
 from django.db.models import Avg
+
+from django.db.models import Count
 from .models import (
     TouristSite,
     Region,
@@ -24,7 +26,8 @@ from .serializers import (
     TouristSiteSerializer,
     RegionSerializer,
     CategorySerializer,
-    ReviewSerializer
+    ReviewSerializer,
+     FavoriteSerializer,
 )
 
 
@@ -472,6 +475,36 @@ def top_rated_sites_api(request):
 
     serializer = TouristSiteSerializer(
         sites,
+        many=True,
+        context={"request": request}
+    )
+
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def dashboard_api(request):
+
+    data = {
+        "sites": TouristSite.objects.count(),
+        "regions": Region.objects.count(),
+        "categories": Category.objects.count(),
+        "reviews": Review.objects.count(),
+        "favorites": Favorite.objects.count(),
+        "users": User.objects.count(),
+    }
+
+    return Response(data)
+
+@api_view(["GET"])
+@login_required
+def my_favorites_api(request):
+
+    favorites = Favorite.objects.filter(
+        user=request.user
+    ).select_related("site")
+
+    serializer = FavoriteSerializer(
+        favorites,
         many=True,
         context={"request": request}
     )

@@ -87,5 +87,17 @@ urlpatterns = [
         'api/sites/top-rated/',
         views.top_rated_sites_api,
         name='top-rated-sites-api'
-    )
+    ),
+
+    path(
+    "api/dashboard/",
+    views.dashboard_api,
+    name="dashboard-api"
+    ),
+
+    path(
+    "api/my-favorites/",
+    views.my_favorites_api,
+    name="my-favorites-api",
+    ),
 ]
