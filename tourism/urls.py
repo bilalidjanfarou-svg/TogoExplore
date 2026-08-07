@@ -76,12 +76,14 @@ urlpatterns = [
         views.register,
         name='register'
     ),
-
     path(
-        'api/dashboard/',
-        views.dashboard_api,
-        name='dashboard-api'
+    "api/dashboard/",
+    views.dashboard_api,
+    name="dashboard-api"
     ),
+
+    
+   
 
     path(
         'api/sites/top-rated/',
@@ -89,11 +91,6 @@ urlpatterns = [
         name='top-rated-sites-api'
     ),
 
-    path(
-    "api/dashboard/",
-    views.dashboard_api,
-    name="dashboard-api"
-    ),
 
     path(
     "api/my-favorites/",

@@ -1,18 +1,14 @@
-from django.http import request
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import login
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from django.core.paginator import Paginator
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import permission_classes
-from django.contrib.auth.models import User
-from django.db.models import Avg
 
-from django.db.models import Count
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from .models import (
     TouristSite,
     Region,
@@ -26,21 +22,20 @@ from .serializers import (
     TouristSiteSerializer,
     RegionSerializer,
     CategorySerializer,
-    ReviewSerializer,
-     FavoriteSerializer,
+    ReviewSerializer
 )
 
 
 # ==========================================================
 # ACCUEIL
 # ==========================================================
-
 def home(request):
-    sites = TouristSite.objects.all()
+
+    sites = TouristSite.objects.all().order_by("-created_at")
+
     categories = Category.objects.all()
     regions = Region.objects.all()
 
-    # Recherche
     q = request.GET.get("q")
 
     if q:
@@ -50,48 +45,40 @@ def home(request):
             Q(location__icontains=q)
         )
 
-    # Filtre catégorie
-    category_id = request.GET.get("category")
+    category = request.GET.get("category")
 
-    if category_id:
-        sites = sites.filter(category_id=category_id)
+    if category:
+        sites = sites.filter(category_id=category)
 
-    # Filtre région
-    region_id = request.GET.get("region")
+    region = request.GET.get("region")
 
-    if region_id:
-        sites = sites.filter(region_id=region_id)
+    if region:
+        sites = sites.filter(region_id=region)
 
-    # Tri
     sort = request.GET.get("sort")
 
-    if sort == "recent":
-        sites = sites.order_by("-created_at")
-
-    elif sort == "name":
+    if sort == "name":
         sites = sites.order_by("name")
 
-    else:
-        sites = sites.order_by("id")
+    elif sort == "recent":
+        sites = sites.order_by("-created_at")
 
-    # Pagination
     paginator = Paginator(sites, 6)
 
     page = request.GET.get("page")
 
     sites = paginator.get_page(page)
 
-    context = {
-        "sites": sites,
-        "categories": categories,
-        "regions": regions,
-    }
-
     return render(
         request,
         "tourism/index.html",
-        context
+        {
+            "sites": sites,
+            "categories": categories,
+            "regions": regions,
+        }
     )
+
 
 
 # ==========================================================
@@ -105,38 +92,29 @@ def site_detail(request, site_id):
         id=site_id
     )
 
-    reviews = Review.objects.filter(
-        site=site
-    ).order_by('-created_at')
+    reviews = site.reviews.order_by("-created_at")
 
-    # Ajouter un avis depuis le site web
-    if request.method == 'POST':
-
-        name = request.POST.get('name')
-        rating = request.POST.get('rating')
-        comment = request.POST.get('comment')
+    if request.method == "POST":
 
         Review.objects.create(
             site=site,
-            name=name,
-            rating=rating,
-            comment=comment
+            name=request.POST.get("name"),
+            rating=request.POST.get("rating"),
+            comment=request.POST.get("comment")
         )
 
         return redirect(
-            'site_detail',
+            "site_detail",
             site_id=site.id
         )
 
-    context = {
-        'site': site,
-        'reviews': reviews
-    }
-
     return render(
         request,
-        'tourism/site_detail.html',
-        context
+        "tourism/site_detail.html",
+        {
+            "site": site,
+            "reviews": reviews,
+        }
     )
 
 
@@ -146,20 +124,20 @@ def site_detail(request, site_id):
 
 def contact(request):
 
-    if request.method == 'POST':
+    if request.method == "POST":
 
         Contact.objects.create(
-            name=request.POST.get('name'),
-            email=request.POST.get('email'),
-            subject=request.POST.get('subject'),
-            message=request.POST.get('message')
+            name=request.POST.get("name"),
+            email=request.POST.get("email"),
+            subject=request.POST.get("subject"),
+            message=request.POST.get("message"),
         )
 
-        return redirect('contact')
+        return redirect("contact")
 
     return render(
         request,
-        'tourism/contact.html'
+        "tourism/contact.html",
     )
 
 
@@ -167,16 +145,15 @@ def contact(request):
 # API - LISTE DES SITES
 # ==========================================================
 
-@api_view(['GET'])
+@api_view(["GET"])
 def tourist_sites_api(request):
 
     sites = TouristSite.objects.all()
 
-    search = request.GET.get('search')
-    region = request.GET.get('region')
-    category = request.GET.get('category')
+    search = request.GET.get("search")
+    region = request.GET.get("region")
+    category = request.GET.get("category")
 
-    # Recherche
     if search:
         sites = sites.filter(
             Q(name__icontains=search) |
@@ -184,13 +161,11 @@ def tourist_sites_api(request):
             Q(location__icontains=search)
         )
 
-    # Région
     if region:
         sites = sites.filter(
             region__name__icontains=region
         )
 
-    # Catégorie
     if category:
         sites = sites.filter(
             category__name__icontains=category
@@ -199,19 +174,17 @@ def tourist_sites_api(request):
     serializer = TouristSiteSerializer(
         sites,
         many=True,
-        context={'request': request}
+        context={"request": request}
     )
 
-    return Response(
-        serializer.data
-    )
+    return Response(serializer.data)
 
 
 # ==========================================================
 # API - DÉTAIL D'UN SITE
 # ==========================================================
 
-@api_view(['GET'])
+@api_view(["GET"])
 def tourist_site_detail_api(request, id):
 
     site = get_object_or_404(
@@ -221,50 +194,39 @@ def tourist_site_detail_api(request, id):
 
     serializer = TouristSiteSerializer(
         site,
-        context={'request': request}
+        context={"request": request}
     )
 
-    return Response(
-        serializer.data
-    )
+    return Response(serializer.data)
 
 
 # ==========================================================
 # API - RÉGIONS
 # ==========================================================
 
-@api_view(['GET'])
+@api_view(["GET"])
 def region_api(request):
 
-    regions = Region.objects.all()
-
     serializer = RegionSerializer(
-        regions,
+        Region.objects.all(),
         many=True
     )
 
-    return Response(
-        serializer.data
-    )
-
+    return Response(serializer.data)
 
 # ==========================================================
 # API - CATÉGORIES
 # ==========================================================
 
-@api_view(['GET'])
+@api_view(["GET"])
 def category_api(request):
 
-    categories = Category.objects.all()
-
     serializer = CategorySerializer(
-        categories,
+        Category.objects.all(),
         many=True
     )
 
-    return Response(
-        serializer.data
-    )
+    return Response(serializer.data)
 
 
 # ==========================================================
@@ -272,9 +234,7 @@ def category_api(request):
 # ==========================================================
 
 
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
-
+@api_view(["GET", "POST"])
 def review_api(request, site_id):
 
     site = get_object_or_404(
@@ -282,46 +242,32 @@ def review_api(request, site_id):
         id=site_id
     )
 
-    # Récupérer les avis
-    if request.method == 'GET':
-
-        reviews = Review.objects.filter(
-            site=site
-        ).order_by('-created_at')
+    if request.method == "GET":
 
         serializer = ReviewSerializer(
-            reviews,
+            site.reviews.all().order_by("-created_at"),
             many=True
         )
 
-        return Response(
-            serializer.data
-        )
+        return Response(serializer.data)
 
-    # Ajouter un avis
-    if request.method == 'POST':
+    serializer = ReviewSerializer(
+        data=request.data
+    )
 
-        data = request.data.copy()
+    if serializer.is_valid():
 
-        data['site'] = site.id
-
-        serializer = ReviewSerializer(
-            data=data
-        )
-
-        if serializer.is_valid():
-
-            serializer.save()
-
-            return Response(
-                serializer.data,
-                status=201
-            )
+        serializer.save(site=site)
 
         return Response(
-            serializer.errors,
-            status=400
+            serializer.data,
+            status=201
         )
+
+    return Response(
+        serializer.errors,
+        status=400
+    )
 
 
 # ==========================================================
@@ -342,7 +288,7 @@ def add_favorite(request, site_id):
     )
 
     return redirect(
-        'site_detail',
+        "site_detail",
         site_id=site.id
     )
 
@@ -365,7 +311,7 @@ def remove_favorite(request, site_id):
     ).delete()
 
     return redirect(
-        'site_detail',
+        "site_detail",
         site_id=site.id
     )
 
@@ -379,15 +325,13 @@ def favorites(request):
 
     favorite_sites = Favorite.objects.filter(
         user=request.user
-    ).select_related(
-        'site'
-    )
+    ).select_related("site")
 
     return render(
         request,
-        'tourism/favorites.html',
+        "tourism/favorites.html",
         {
-            'favorite_sites': favorite_sites
+            "favorite_sites": favorite_sites
         }
     )
 
@@ -395,83 +339,81 @@ def favorites(request):
 # ==========================================================
 # INSCRIPTION
 # ==========================================================
-
 def register(request):
 
-    if request.method == 'POST':
+    if request.method == "POST":
 
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        password2 = request.POST.get('password2')
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        password2 = request.POST.get("password2")
 
-        # Vérifier les mots de passe
         if password != password2:
 
             return render(
                 request,
-                'registration/register.html',
+                "registration/register.html",
                 {
-                    'error':
-                    'Les mots de passe ne correspondent pas.'
+                    "error": "Les mots de passe ne correspondent pas."
                 }
             )
 
-        # Vérifier si l'utilisateur existe
         if User.objects.filter(
             username=username
         ).exists():
 
             return render(
                 request,
-                'registration/register.html',
+                "registration/register.html",
                 {
-                    'error':
-                    'Ce nom d\'utilisateur existe déjà.'
+                    "error": "Ce nom d'utilisateur existe déjà."
                 }
             )
 
-        # Créer l'utilisateur
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password
         )
 
-        # Connecter automatiquement
         login(
             request,
             user
         )
 
-        return redirect(
-            'home'
-        )
+        return redirect("home")
 
     return render(
         request,
-        'registration/register.html'
+        "registration/register.html"
     )
-
-@api_view(['GET'])
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def dashboard_api(request):
 
-    data = {
-        "total_sites": TouristSite.objects.count(),
-        "total_regions": Region.objects.count(),
-        "total_categories": Category.objects.count(),
-        "total_reviews": Review.objects.count(),
-        "total_users": User.objects.count(),
-        "total_favorites": Favorite.objects.count(),
-    }
+    return Response({
 
-    return Response(data)
+        "username": request.user.username,
+
+        "email": request.user.email,
+
+        "favorites": Favorite.objects.filter(
+            user=request.user
+        ).count(),
+
+        "reviews": Review.objects.filter(
+            name=request.user.username
+        ).count(),
+
+        "sites": TouristSite.objects.count()
+
+    })
 @api_view(["GET"])
 def top_rated_sites_api(request):
 
     sites = TouristSite.objects.annotate(
-    avg_rating=Avg("reviews__rating")
-).order_by("-avg_rating")[:5]
+        avg_rating=Avg("reviews__rating")
+    ).order_by("-avg_rating")[:5]
 
     serializer = TouristSiteSerializer(
         sites,
@@ -481,32 +423,49 @@ def top_rated_sites_api(request):
 
     return Response(serializer.data)
 
-@api_view(["GET"])
-def dashboard_api(request):
-
-    data = {
-        "sites": TouristSite.objects.count(),
-        "regions": Region.objects.count(),
-        "categories": Category.objects.count(),
-        "reviews": Review.objects.count(),
-        "favorites": Favorite.objects.count(),
-        "users": User.objects.count(),
-    }
-
-    return Response(data)
 
 @api_view(["GET"])
-@login_required
+@permission_classes([IsAuthenticated])
 def my_favorites_api(request):
 
     favorites = Favorite.objects.filter(
         user=request.user
     ).select_related("site")
 
-    serializer = FavoriteSerializer(
-        favorites,
+    serializer = TouristSiteSerializer(
+        [favorite.site for favorite in favorites],
         many=True,
         context={"request": request}
     )
 
     return Response(serializer.data)
+
+@api_view(["GET", "POST"])
+def review_api(request, site_id):
+
+    site = get_object_or_404(
+        TouristSite,
+        id=site_id
+    )
+
+    if request.method == "GET":
+        reviews = Review.objects.filter(
+            site=site
+        ).order_by("-created_at")
+
+        serializer = ReviewSerializer(
+            reviews,
+            many=True
+        )
+
+        return Response(serializer.data)
+
+    serializer = ReviewSerializer(
+        data=request.data
+    )
+
+    if serializer.is_valid():
+        serializer.save(site=site)
+        return Response(serializer.data, status=201)
+
+    return Response(serializer.errors, status=400)
