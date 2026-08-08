@@ -2,11 +2,21 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q, Avg
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.contrib.auth import login
+from django.contrib.auth import login, views
 from django.core.paginator import Paginator
 
+from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import (
+    SearchFilter,
+    OrderingFilter,
+)
+
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAdminUser
+)
 from rest_framework.response import Response
 
 from .models import (
@@ -20,6 +30,7 @@ from .models import (
 
 from .serializers import (
     TouristSiteSerializer,
+     TouristSiteCreateUpdateSerializer,
     RegionSerializer,
     CategorySerializer,
     ReviewSerializer
@@ -469,3 +480,110 @@ def review_api(request, site_id):
         return Response(serializer.data, status=201)
 
     return Response(serializer.errors, status=400)
+
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def created_sites_api(request):
+
+    serializer = TouristSiteSerializer(
+        data=request.data,
+        context={"request": request}
+    )
+
+    if serializer.is_valid():
+
+        serializer.save()
+
+        return Response(
+            TouristSiteSerializer(
+                serializer.instance,
+                context={"request": request}
+            ).data,
+            status=201
+        )
+
+    return Response(
+        serializer.errors,
+        status=400
+    )
+
+@api_view(["PUT"])
+@permission_classes([IsAdminUser])
+def update_site_api(request, site_id):
+
+    site = get_object_or_404(
+        TouristSite,
+        id=site_id
+    )
+
+    serializer = TouristSiteSerializer(
+        site,
+        data=request.data,
+        
+    )
+
+    if serializer.is_valid():
+
+        serializer.save()
+
+        return Response(
+            TouristSiteSerializer(
+                serializer.instance,
+                context={"request": request}
+            ).data
+        )
+
+    return Response(
+        serializer.errors,
+        status=400
+    )
+
+@api_view(["DELETE"])
+@permission_classes([IsAdminUser])
+def delete_site_api(request, site_id):
+
+    site = get_object_or_404(
+        TouristSite,
+        id=site_id
+    )
+
+    site.delete()
+
+    return Response(
+        {
+            "message": "Site supprimé avec succès."
+        }
+    )
+
+class TouristSiteListAPI(generics.ListAPIView):
+
+    queryset = TouristSite.objects.all()
+
+    serializer_class = TouristSiteSerializer
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_fields = [
+        "region",
+        "category",
+    ]
+
+    search_fields = [
+        "name",
+        "description",
+        "location",
+    ]
+
+    ordering_fields = [
+        "created_at",
+        "name",
+    ]
+
+    ordering = [
+        "-created_at"
+    ]
+        

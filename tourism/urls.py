@@ -97,4 +97,28 @@ urlpatterns = [
     views.my_favorites_api,
     name="my-favorites-api",
     ),
+
+    path(
+    "api/sites/create/",
+    views.create_site_api,
+    name="create-site-api",
+    ),
+
+    path(
+    "api/sites/<int:site_id>/update/",
+    views.update_site_api,
+    name="update-site-api",
+    ),
+
+    path(
+    "api/sites/<int:site_id>/delete/",
+    views.delete_site_api,
+    name="delete-site-api",
+    ),
+
+    path(
+    "api/v2/sites/",
+    views.TouristSiteListAPI.as_view(),
+    name="tourist-sites-v2",
+    ),
 ]

@@ -38,6 +38,13 @@ class TouristSiteSerializer(serializers.ModelSerializer):
         return obj.reviews.count()
 
 
+class TouristsiteCreateUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TouristSite
+        fields = "__all__"
+
+
 class RegionSerializer(serializers.ModelSerializer):
 
     class Meta:
