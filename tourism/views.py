@@ -30,10 +30,10 @@ from .models import (
 
 from .serializers import (
     TouristSiteSerializer,
-     TouristSiteCreateUpdateSerializer,
+    TouristsiteCreateUpdateSerializer,
     RegionSerializer,
     CategorySerializer,
-    ReviewSerializer
+    ReviewSerializer,
 )
 
 

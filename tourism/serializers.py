@@ -36,13 +36,23 @@ class TouristSiteSerializer(serializers.ModelSerializer):
 
     def get_reviews_count(self, obj):
         return obj.reviews.count()
+    
 
 
-class TouristsiteCreateUpdateSerializer(serializers.ModelSerializer):
+class TouristSiteCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TouristSite
-        fields = "__all__"
+        fields = [
+            "name",
+            "description",
+            "location",
+            "latitude",
+            "longitude",
+            "region",
+            "category",
+            "image",
+        ]
 
 
 class RegionSerializer(serializers.ModelSerializer):
