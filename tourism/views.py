@@ -18,7 +18,7 @@ from rest_framework.permissions import (
     IsAdminUser
 )
 from rest_framework.response import Response
-
+from rest_framework import status
 from .models import (
     TouristSite,
     Region,
@@ -30,7 +30,7 @@ from .models import (
 
 from .serializers import (
     TouristSiteSerializer,
-    TouristsiteCreateUpdateSerializer,
+    TouristSiteCreateUpdateSerializer,
     RegionSerializer,
     CategorySerializer,
     ReviewSerializer,
@@ -553,6 +553,26 @@ def delete_site_api(request, site_id):
         {
             "message": "Site supprimé avec succès."
         }
+    )
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_site_api(request):
+    serializer = TouristSiteCreateUpdateSerializer(
+        data=request.data
+    )
+
+    if serializer.is_valid():
+        site = serializer.save()
+
+        return Response(
+            TouristSiteSerializer(site).data,
+            status=status.HTTP_201_CREATED
+        )
+
+    return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST
     )
 
 class TouristSiteListAPI(generics.ListAPIView):

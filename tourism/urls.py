@@ -100,7 +100,7 @@ urlpatterns = [
 
     path(
     "api/sites/create/",
-    views.create_site_api,
+    views.created_sites_api,
     name="create-site-api",
     ),
 
@@ -121,4 +121,10 @@ urlpatterns = [
     views.TouristSiteListAPI.as_view(),
     name="tourist-sites-v2",
     ),
+
+    path(
+    'api/sites/create/',
+    views.create_site_api,
+    name='create-site-api'
+),
 ]
