@@ -29,6 +29,7 @@ from .models import (
 )
 
 from .serializers import (
+    FavoriteSerializer,
     TouristSiteSerializer,
     TouristSiteCreateUpdateSerializer,
     RegionSerializer,
@@ -441,9 +442,9 @@ def my_favorites_api(request):
 
     favorites = Favorite.objects.filter(
         user=request.user
-    ).select_related("site")
+    )
 
-    serializer = TouristSiteSerializer(
+    serializer = FavoriteSerializer(
         [favorite.site for favorite in favorites],
         many=True,
         context={"request": request}
